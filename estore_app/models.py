@@ -33,6 +33,12 @@ class Order(models.Model):
     def __str__(self):
         return f"Order #{self.id} by {self.user.username}"
 
+    #def save(self, *args, **kwargs):
+    #   # Переопределение метода save для автоматического выставления total_price
+     #   total_price = sum(product.price * self.quantity for product in self.products.all())
+     #   self.total_price = total_price
+     #   super(Order, self).save(*args, **kwargs)
+
 #    def save(self, *args, **kwargs):
 #        self.total_price = sum(product.price * self.quantity for product in self.products.all())
 
@@ -57,4 +63,6 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.user.username} on {self.product.name}"
+
+
 

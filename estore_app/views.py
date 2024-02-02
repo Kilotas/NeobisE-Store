@@ -9,6 +9,8 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Order, Product, Comment, Review
 from rest_framework.decorators import api_view
+from django.db.models import Sum, F
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -79,7 +81,7 @@ class ReviewList(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
-@api_view(['GET'])
+@api_view(['GET']) # получаем средний рейтинг определенного товара и общее количество отзывов
 def product_ratings(request, product_id):
     try:
         product = Product.objects.get(id=product_id)
@@ -98,5 +100,19 @@ def product_ratings(request, product_id):
 
 
 
+@api_view(['GET'])
+def user_total_order_price(request, user_id):
+    try:
+        user = User.objects.get(pk=user_id)
+        orders = Order.objects.filter(user=user)
+
+        total_order_price = 0
+        for order in orders:
+            total_order_price += order.total_price * order.quantity
+
+        return Response({"user_id": user_id, "total_order_price": total_order_price})
+
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
 
 

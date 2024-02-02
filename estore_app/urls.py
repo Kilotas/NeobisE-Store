@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/reviews/', views.ReviewList.as_view(), name='review-list'),
     path('api/products/<int:product_id>/ratings/', views.product_ratings, name='product-ratings'),
     path('api/category/<str:category>', views.ProductCategoryView.as_view(), name='category'),
+    path('api/totalprice/<int:user_id>', views.user_total_order_price, name='totalprice'),
     path('api/v1/register/', views.RegisterView.as_view(), name='register'),
     path('api/v1/drf-auth/', include('rest_framework.urls')),
 ]
