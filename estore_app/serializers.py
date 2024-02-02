@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Product, Order
+from .models import Product, Order, Comment, Review
 from django.contrib.auth.hashers import make_password
 
 class UserSerializer(serializers.ModelSerializer):
@@ -19,8 +19,28 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+#class ProductSerializer(serializers.ModelSerializer):
+#    class Meta:
+#        model = Product
+#        fields = '__all__'
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
+
+#будет включать в себя все поля модели Product, а также сериализовать связанные комментарии и отзывы, используя соответствующие вложенные сериализаторы.
 class ProductSerializer(serializers.ModelSerializer):
+    comments = CommentSerializer(many=True, read_only=True)
+    reviews = ReviewSerializer(many=True, read_only=True)
+
     class Meta:
         model = Product
         fields = '__all__'
+
 

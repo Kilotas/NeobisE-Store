@@ -3,12 +3,12 @@ from django.contrib.auth.models import User
 from rest_framework import status, generics, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .serializers import UserSerializer, OrderSerializer, ProductSerializer
+from .serializers import UserSerializer, OrderSerializer, ProductSerializer, CommentSerializer, ReviewSerializer
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import Order, Product
-
+from .models import Order, Product, Comment, Review
+from rest_framework.decorators import api_view
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -48,7 +48,7 @@ class OrderCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user) #  создание нового заказа через API-точку только для аутентифицированных пользователей и автоматически устанавливает пользователя, создавшего заказ,
-
+ #       instance.save()
 
 
 
@@ -66,5 +66,37 @@ class AdminOrderListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Order.objects.all()
+
+class ProductList(generics.ListCreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+class CommentList(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+class ReviewList(generics.ListCreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+@api_view(['GET'])
+def product_ratings(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    reviews = product.reviews.all()
+    total_reviews = len(reviews)
+    if total_reviews == 0:
+        average_rating = 0
+    else:
+        total_rating = sum(review.rating for review in reviews)
+        average_rating = total_rating / total_reviews
+
+    return Response({"average_rating": average_rating, "total_reviews": total_reviews})
+
+
+
 
 
