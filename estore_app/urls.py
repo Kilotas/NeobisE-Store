@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 from . import views
 from .views import ProductListView
@@ -14,6 +15,8 @@ from rest_framework import routers, permissions
 
 urlpatterns = [
     #path('', include(router.urls)),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
     path('api/orders/create/', views.OrderCreateView.as_view(), name='order-create'),
     path('api/orders/user/', views.UserOrderListView.as_view(), name='user-orders'),
     path('api/orders/admin/', views.AdminOrderListView.as_view(), name='admin-orders'),
