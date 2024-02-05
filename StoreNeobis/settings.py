@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'estore_app',
     'rest_framework',
+    'drf_spectacular'
 ]
 
 MIDDLEWARE = [

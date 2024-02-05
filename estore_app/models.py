@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from decimal import Decimal
 
+
 class Product(models.Model):
     TECH = 'техника'
     TOYS = 'игрушки'
@@ -22,22 +23,26 @@ class Product(models.Model):
         return self.name
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     products = models.ManyToManyField('Product', related_name='orders')
     created_at = models.DateTimeField(auto_now_add=True)
     shipping_address = models.TextField()
     is_completed = models.BooleanField(default=False)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, editable=False)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     quantity = models.PositiveIntegerField(default=1, verbose_name='Количество')
 
     def __str__(self):
         return f"Order #{self.id} by {self.user.username}"
 
+    def calculate_total_price(self):
+        total_price = sum(product.price * self.quantity for product in self.products.all())
+        return total_price
+
     #def save(self, *args, **kwargs):
     #   # Переопределение метода save для автоматического выставления total_price
-     #   total_price = sum(product.price * self.quantity for product in self.products.all())
-     #   self.total_price = total_price
-     #   super(Order, self).save(*args, **kwargs)
+       # total_price = sum(product.price * self.quantity for product in self.products.all())
+       # self.total_price = total_price
+       # super(Order, self).save(*args, **kwargs)
 
 #    def save(self, *args, **kwargs):
 #        self.total_price = sum(product.price * self.quantity for product in self.products.all())

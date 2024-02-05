@@ -14,9 +14,39 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'password']
 
 class OrderSerializer(serializers.ModelSerializer):
+    quantity = serializers.IntegerField()
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = ['id', 'products', 'created_at', 'shipping_address', 'quantity']
+        read_only_fields = ('is_completed', 'total_price')
+
+    def create(self, validated_data):
+        products_data = validated_data.pop('products')
+        quantity = validated_data.pop('quantity')
+
+        # Создаем новый экземпляр Order, используя оставшиеся данные из validated_data
+        order = Order.objects.create(**validated_data)
+
+        for product in products_data:
+            order.products.add(product)
+
+
+        order.quantity = quantity
+        order.calculate_total_price()
+
+        # Рассчитываем и устанавливаем общую стоимость заказа
+        total_price = order.calculate_total_price()
+        order.total_price = total_price
+        order.save()
+
+        # Расчитываем и устанавливаем общую стоимость заказа
+        return order
+
+
+
+
+
+
 
 
 #class ProductSerializer(serializers.ModelSerializer):
@@ -36,7 +66,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 #будет включать в себя все поля модели Product, а также сериализовать связанные комментарии и отзывы, используя соответствующие вложенные сериализаторы.
 class ProductSerializer(serializers.ModelSerializer):
-    comments = CommentSerializer(many=True, read_only=True)
+    comments = CommentSerializer(many=True, read_only=True) # указывает что у продукта может быть несколько комментариев , и что это поле только для чтения, данные будут выводиться, но не приниматься
     reviews = ReviewSerializer(many=True, read_only=True)
 
     class Meta:
